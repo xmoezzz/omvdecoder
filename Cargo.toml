@@ -10,7 +10,7 @@ anyhow = { version = "*", features = ["backtrace"] }
 binrw = "0.13.3"
 kmpsearch = "1.0.0"
 memmap = "0.7.0"
-theorafile-rs = "0.1.1"
+theorafile-rs = "0.1.2"
 image = "0.25.1"
 openh264 = "0.6.0"
 minimp4 = { git = "https://github.com/xmoezzz/minimp4.rs" }

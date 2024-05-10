@@ -1319,9 +1319,9 @@ checksum = "e1fc403891a21bcfb7c37834ba66a547a8f402146eba7265b5a6d88059c9ff2f"
 
 [[package]]
 name = "theorafile-rs"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "79b477f0a15b1c38e03186ed224394ee2686ae7ac60ca14398028d5b5dfbbd78"
+checksum = "2552119a75eae9c63330b441476a72ef4945c66b1bbcd78e4e7ab6978e7d4c7d"
 dependencies = [
  "cc",
  "walkdir",
