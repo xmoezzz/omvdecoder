@@ -3,8 +3,9 @@ use anyhow::Result;
 mod png;
 mod jpg;
 mod h264;
+mod ffmpeg;
 
-pub use {png::PngConverter, jpg::JpgConverter, h264::H264Converter};
+pub use {png::PngConverter, jpg::JpgConverter, h264::H264Converter, ffmpeg::FfmepgConverter};
 
 pub trait Converter {
     fn prepare(&mut self, width: u32, height: u32, fps: f32) -> Result<()>;

@@ -233,6 +233,11 @@ fn convert_embedded_ogv(
             let cvt = converter::JpgConverter::new(output);
             Box::new(cvt)
         }
+        OutputFormat::Ffmpeg => {
+            log::info!("Converting using Ffmpeg");
+            let cvt = converter::FfmepgConverter::new(output);
+            Box::new(cvt)
+        }
     };
 
     let datasource = DataSource::new(ogv_content.to_vec());
@@ -340,6 +345,7 @@ enum OutputFormat {
     PngPicture,
     #[default]
     JpgPicture,
+    Ffmpeg,
 }
 
 #[derive(Parser, Debug)]

@@ -22,3 +22,5 @@ Options:
   -V, --version          Print version
 ```
 
+* for ffmpeg mode, you need to install ffmpeg first, and make sure ffmpeg is in your PATH.
+* ffmpeg mode can guarantee higher quality when compared to the h264 mode.
