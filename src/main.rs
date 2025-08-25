@@ -238,6 +238,11 @@ fn convert_embedded_ogv(
             let cvt = converter::FfmepgConverter::new(output);
             Box::new(cvt)
         }
+        OutputFormat::PipedPng => {
+            log::info!("Converting to Piped PNG");
+            let cvt = converter::PipedPngConverter::new(output);
+            Box::new(cvt)
+        }
     };
 
     let datasource = DataSource::new(ogv_content.to_vec());
@@ -346,6 +351,7 @@ enum OutputFormat {
     #[default]
     JpgPicture,
     Ffmpeg,
+    PipedPng,
 }
 
 #[derive(Parser, Debug)]

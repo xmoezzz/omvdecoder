@@ -4,8 +4,9 @@ mod png;
 mod jpg;
 mod h264;
 mod ffmpeg;
+mod piped;
 
-pub use {png::PngConverter, jpg::JpgConverter, h264::H264Converter, ffmpeg::FfmepgConverter};
+pub use {png::PngConverter, jpg::JpgConverter, h264::H264Converter, ffmpeg::FfmepgConverter, piped::PipedPngConverter};
 
 pub trait Converter {
     fn prepare(&mut self, width: u32, height: u32, fps: f32) -> Result<()>;
