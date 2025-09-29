@@ -149,7 +149,7 @@ fn yuv2rgb(y: u8, u: u8, v: u8) -> (u8, u8, u8) {
     return (r, g, b);
 }
 
-fn yuv_to_image(data: *mut i8, width: i32, height: i32, is24bit: bool) -> image::RgbaImage {
+fn yuv_to_image(data: *mut i8, width: i32, height: i32, video_height: i32, is24bit: bool) -> image::RgbaImage {
     let mut img = image::RgbaImage::new(width as u32, height as u32);
 
     // for (int y = 0; y < height; y++)
@@ -178,9 +178,9 @@ fn yuv_to_image(data: *mut i8, width: i32, height: i32, is24bit: bool) -> image:
     #[allow(clippy::identity_op)]
     for y in 0..height {
         for x in 0..width {
-            let b = unsafe { *data.offset((width * (height * 0 + y) + x) as isize) };
-            let g = unsafe { *data.offset((width * (height * 1 + y) + x) as isize) };
-            let r = unsafe { *data.offset((width * (height * 2 + y) + x) as isize) };
+            let b = unsafe { *data.offset((width * (video_height * 0 + y) + x) as isize) };
+            let g = unsafe { *data.offset((width * (video_height * 1 + y) + x) as isize) };
+            let r = unsafe { *data.offset((width * (video_height * 2 + y) + x) as isize) };
 
             let a = if is24bit {
                 0xff
@@ -289,9 +289,16 @@ fn convert_embedded_ogv(
         return Err(anyhow::anyhow!("Unsupported pixel format"));
     }
 
+    let video_height = height;
+    let mut is24bit = true;
+    if header.metadata.height != height as u32 {
+        is24bit = false;
+        height = header.metadata.height as i32;
+    }
+
     converter.prepare(width as u32, height as u32, fps as f32)?;
 
-    let size = width as usize * height as usize * 3;
+    let size = width as usize * video_height as usize * 3;
     let alignment = 1024;
     let mem_layout = unsafe { Layout::from_size_align_unchecked(size, alignment) };
 
@@ -317,14 +324,20 @@ fn convert_embedded_ogv(
         if unsafe { tf_eos(ogg_file) } != 0 {
             break;
         }
-
+        // fill data_blob with 0
+        unsafe { std::ptr::write_bytes(data_blob as *mut u8, 0, size) };
         unsafe { tf_readvideo(ogg_file, data_blob, 1) };
+        let frame_slice = unsafe { std::slice::from_raw_parts(data_blob as *const i8, size) };
+        let mut owned_buf = vec![0i8; size];
+        owned_buf.copy_from_slice(frame_slice);
         let image = yuv_to_image(
-            data_blob,
+            owned_buf.as_mut_ptr(),
             width,
             height,
-            header.metadata.height == height as u32,
+            video_height,
+            is24bit,
         );
+
         converter.convert_frame(image, frame_count)?;
         frame_count += 1;
         log::info!("Decoded {} frame(s)", frame_count);

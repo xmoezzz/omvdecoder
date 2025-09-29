@@ -34,6 +34,14 @@ impl FfmepgConverter {
     }
 }
 
+fn rgba_to_rgb(img: RgbaImage) -> Vec<u8> {
+    let mut out = Vec::with_capacity((img.width() * img.height() * 3) as usize);
+    for pixel in img.pixels() {
+        out.extend_from_slice(&pixel.0[0..3]);
+    }
+    out
+}
+
 impl Converter for FfmepgConverter {
     fn prepare(&mut self, width: u32, height: u32, fps: f32) -> Result<()> {
         self.width = width;
@@ -56,7 +64,7 @@ impl Converter for FfmepgConverter {
             .arg(&self.path)
             .stdin(Stdio::piped())
             .stdout(Stdio::null())
-            .stderr(Stdio::null());
+            .stderr(Stdio::inherit());
 
         let mut child = cmd.spawn().map_err(|e| anyhow!("Failed to spawn ffmpeg: {}", e))?;
         let child_stdin = child.stdin.take().ok_or_else(|| anyhow!("Failed to open stdin"))?;
@@ -76,13 +84,11 @@ impl Converter for FfmepgConverter {
     }
 
     fn finish(&self) -> Result<()> {
-        // 取出 stdin 并 drop
         if let Some(mut stdin) = self.stdin.borrow_mut().take() {
             stdin.flush()?; // flush
             drop(stdin); 
         }
 
-        // 取出 encoder 并 wait
         if let Some(mut child) = self.encoder.borrow_mut().take() {
             let status = child.wait()?;
             if !status.success() {
